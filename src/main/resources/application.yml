@@ -1,0 +1,4 @@
+exchange:
+  cache:
+    recheck-errors:
+      enabled: true
