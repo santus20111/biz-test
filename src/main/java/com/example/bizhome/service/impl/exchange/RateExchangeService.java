@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ConditionalOnEnabledResourceChain;
 import org.springframework.cache.Cache;
@@ -25,16 +26,18 @@ import java.time.LocalDate;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class RateExchangeService implements ExchangeService {
     private final WebClient webClient;
 
+    public RateExchangeService(@Qualifier("RateExchangeApi") WebClient webClient) {
+        this.webClient = webClient;
+    }
 
     @Override
     public Mono<Float> getValue(String currency, LocalDate date) {
             return webClient
-                    .method(HttpMethod.GET)
-                    .uri(URI.create(String.format("https://api.exchangeratesapi.io/%s?symbols=%s", date.toString(), currency)))
+                    .get()
+                    .uri(String.format("/%s?symbols=%s", date.toString(), currency))
                     .retrieve()
                     .onRawStatus(httpStatus -> httpStatus == 400,
                             response -> Mono.just(new CurrencyValueNotFoundException(currency, date)))

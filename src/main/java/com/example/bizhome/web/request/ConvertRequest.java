@@ -29,4 +29,13 @@ public class ConvertRequest {
     @ConvertDateConstraint
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Формат даты: 'YYYY-MM-DD'")
     private String date;
+
+    public static ConvertRequest create(String baseCurrency, String convertCurrency, Float sum, String date) {
+        ConvertRequest request = new ConvertRequest();
+        request.setBaseCurrency(baseCurrency);
+        request.setConvertCurrency(convertCurrency);
+        request.setSum(sum);
+        request.setDate(date);
+        return request;
+    }
 }

@@ -22,13 +22,16 @@ public class BizHomeApplication {
         SpringApplication.run(BizHomeApplication.class, args);
     }
 
-    @Bean
+
+    @Bean("RateExchangeApi")
     public WebClient webClient() {
-        return WebClient.builder().build();
+        return WebClient.builder()
+                .baseUrl("https://api.exchangeratesapi.io/")
+                .build();
     }
 
     @Bean
     public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("EXCHANGE-MANAGER");
+        return new ConcurrentMapCacheManager("EXCHANGE-VALUES");
     }
 }
