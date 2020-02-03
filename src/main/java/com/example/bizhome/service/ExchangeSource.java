@@ -5,6 +5,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 
-public interface ExchangeService {
+public interface ExchangeSource {
     ExchangeSourceAnswer getValue(String currency, LocalDate date);
 }

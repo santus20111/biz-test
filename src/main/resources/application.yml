@@ -1,4 +1,6 @@
 exchange:
+  default-base-currency: RUB
+  source: rateexchange
   cache:
-    recheck-errors:
-      enabled: true
+    recheck-errors: true
+    period: 7

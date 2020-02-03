@@ -1,21 +1,22 @@
 package com.example.bizhome.service.impl.cache;
 
-import com.example.bizhome.service.ExchangeCacheRefreshService;
-import com.example.bizhome.service.ExchangeService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import com.example.bizhome.service.impl.exchange.ExchangeSourceAnswer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
-@ConditionalOnProperty(value = "exchange.cache.recheck-errors.enabled", havingValue = "true")
 @Service
-public class ScheduledExchangeCacheRefreshService implements ExchangeCacheRefreshService {
+public class ScheduledExchangeCacheRefreshService {
+
+    @Value("${exchange.cache.recheck-errors}")
+    private Boolean recheckErrors;
+
+    @Value("${exchange.cache.period}")
+    private Integer cachePeriod;
 
     private final Cache cache;
 
@@ -29,22 +30,17 @@ public class ScheduledExchangeCacheRefreshService implements ExchangeCacheRefres
     }
 
     /**
-     * Удаляет из кэша запросы, которые упали с ошибкой
+     * Удаляет из кэша ответы, которые не входят в указанный период кэширования, или которые упали с ошибкой
      */
-    @Override
     public void refresh() {
-        Map<List<Object>, Mono> nativeCache = (Map<List<Object>, Mono>) cache.getNativeCache();
-        for(List<Object> key: nativeCache.keySet()) {
-            try {
-                ((Mono)cache.get(key).get()).block();
-            } catch (Throwable throwable) {
+        Map<Object, ExchangeSourceAnswer> nativeCache = (Map<Object, ExchangeSourceAnswer>) cache.getNativeCache();
+        for(Object key: nativeCache.keySet()) {
+            ExchangeSourceAnswer answer = nativeCache.get(key);
+            if(LocalDate.now().minusDays(cachePeriod).isAfter(answer.getDate())) {
+                cache.evict(key);
+            } else if(recheckErrors && answer.getStatus().equals(ExchangeSourceAnswer.STATUS.ERROR)) {
                 cache.evict(key);
             }
         }
-    }
-
-    @Override
-    public void clear() {
-        cache.clear();
     }
 }

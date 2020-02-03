@@ -9,7 +9,6 @@ import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Getter
-@Setter
 public class ConvertResponse {
     private String baseCurrency;
     private String convertCurrency;
@@ -17,4 +16,28 @@ public class ConvertResponse {
     private Float convertCurrencyValue;
     private LocalDate date;
     private Float sum;
+
+
+    private ConvertResponse(String baseCurrency, String convertCurrency, Float baseCurrencyValue, Float convertCurrencyValue, LocalDate date, Float sum) {
+        this.baseCurrency = baseCurrency;
+        this.convertCurrency = convertCurrency;
+        this.baseCurrencyValue = baseCurrencyValue;
+        this.convertCurrencyValue = convertCurrencyValue;
+        this.date = date;
+        this.sum = sum;
+    }
+
+    public static ConvertResponse from(String baseCurrency,
+                                       String convertCurrency,
+                                       Float baseCurrencyValue,
+                                       Float convertCurrencyValue,
+                                       LocalDate date,
+                                       Float sum) {
+        return new ConvertResponse(baseCurrency,
+                convertCurrency,
+                baseCurrencyValue,
+                convertCurrencyValue,
+                date,
+                sum);
+    }
 }
